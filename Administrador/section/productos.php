@@ -1,35 +1,21 @@
 <?php include("../template/cabecera.php"); ?>
 <?php
 
+include("../config/baseDB.php");
+
 $txtID = (isset($_POST['txtID'])) ? $_POST['txtID'] : "";
 $txtNombre = (isset($_POST['txtNombre'])) ? $_POST['txtNombre'] : "";
 $txtImagen = (isset($_FILES['txtImagen']['name'])) ? $_FILES['txtImagen']['name'] : "";
 $accion = (isset($_POST['accion'])) ? $_POST['accion'] : "";
 
-echo $txtID . '<br/>';
-echo $txtNombre . '<br/>';
-echo $txtImagen . '<br/>';
-echo $accion . '<br/>';
-
-// conexion a la base de datos
-$host = 'localhost';
-$bd = 'sitio01';
-$usuario = 'root';
-$password = '';
-
-try {
-    $conexion = new PDO("mysql:host=$host;dbname=$bd", $usuario, $password);
-    if ($conexion) {
-        echo 'Conecion exitosa ';
-    }
-} catch (Exception $ex) {
-    echo $ex->getMessage();
-}
 
 switch ($accion) {
     case "Agregar":
         // INSERT INTO `libros` (`id`, `nombre`, `imagen`) VALUES (NULL, 'Letras y voces con eco', 'imagen.jpg');
-        echo 'Presiono el boton agregar';
+        $setenciaSQL = $conexion->prepare("INSERT INTO libros (nombre,imagen) VALUES (:nombre,:imagen)");
+        $setenciaSQL->bindParam(':nombre', $txtNombre);
+        $setenciaSQL->bindParam(':imagen', $txtImagen);
+        $setenciaSQL->execute();
         break;
     case "Modificar":
         echo 'Presiono el boton modificare';
