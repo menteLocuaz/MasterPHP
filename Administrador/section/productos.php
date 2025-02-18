@@ -23,7 +23,20 @@ switch ($accion) {
     case "Cancelar":
         echo 'Presiono el boton cancelar';
         break;
+    case "Borrar":
+        $setenciaSQL = $conexion->prepare("DELETE FROM libros WHERE id=:id");
+        $setenciaSQL->bindParam(':id', $txtID);
+        $setenciaSQL->execute();
+        break;
+    case "Selecionar":
+        echo 'Presiono el boton Selecionar';
+        break;
 }
+// mostra los libros
+$setenciaSQL = $conexion->prepare("SELECT * FROM libros");
+$setenciaSQL->execute();
+// asocia una variable los datos recogido en una sosiacion 
+$lisatLibros = $setenciaSQL->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
@@ -78,13 +91,24 @@ switch ($accion) {
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>2</td>
-                <td>Aprende PHP</td>
-                <td>Imagen.jpg</td>
-                <td>Selecionar - Borrar</td>
-            </tr>
+            <?php foreach ($lisatLibros as $libro) {  ?>
+                <tr>
+                    <td><?php echo $libro['id']; ?></td>
+                    <td><?php echo $libro['nombre']; ?></td>
+                    <td><?php echo $libro['imagen']; ?></td>
 
+                    <td>
+
+                        <form action="" method="post">
+                            <input type="hidden" name="txtID" id="txtID" value="<?php echo $libro['id']; ?>" />
+                            <input type="submit" name="accion" value="Selecionar" class="btn btn-primary" />
+                            <input type="submit" name="accion" value="Borrar" class="btn btn-danger" />
+                        </form>
+
+                    </td>
+
+                </tr>
+            <?php } ?>
         </tbody>
     </table>
 </div>
