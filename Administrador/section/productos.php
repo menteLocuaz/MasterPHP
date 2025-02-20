@@ -14,7 +14,16 @@ switch ($accion) {
         // INSERT INTO `libros` (`id`, `nombre`, `imagen`) VALUES (NULL, 'Letras y voces con eco', 'imagen.jpg');
         $setenciaSQL = $conexion->prepare("INSERT INTO libros (nombre,imagen) VALUES (:nombre,:imagen)");
         $setenciaSQL->bindParam(':nombre', $txtNombre);
-        $setenciaSQL->bindParam(':imagen', $txtImagen);
+        // agregammo imagenes
+        $fecha = new DateTime();
+        $nombreArchivo = ($txtImagen != "") ? $fecha->getTimestamp() . "_" . $_FILES['txtImagen']['name'] : "imagen.jpg";
+        // imagen temporal 
+        $tmpImagen = $_FILES['txtImagen']['tmp_name'];
+        if ($tmpImagen != '') {
+            move_uploaded_file($tmpImagen, '../../img/' . $nombreArchivo);
+        }
+
+        $setenciaSQL->bindParam(':imagen', $nombreArchivo);
         $setenciaSQL->execute();
         break;
     case "Modificar":
@@ -22,15 +31,34 @@ switch ($accion) {
         $setenciaSQL->bindParam(':id', $txtID);
         $setenciaSQL->bindParam(':nombre', $txtNombre);
         $setenciaSQL->execute();
+        if ($txtImagen != "") {
+            $setenciaSQL = $conexion->prepare("UPDATE libros SET imagen=:imagen WHERE id=:id");
+            $setenciaSQL->bindParam(':id', $txtID);
+            $setenciaSQL->bindParam(':nombre', $txtImagen);
+            $setenciaSQL->execute();
+        }
+        // actilizar imagen 
         break;
     case "Cancelar":
         // mostra los libros
         echo 'Selecion de cancelar ';
         break;
     case "Borrar":
+        $setenciaSQL = $conexion->prepare("SELECT imagen FROM libros WHERE id=:id");
+        $setenciaSQL->bindParam(':id', $txtID);
+        $setenciaSQL->execute();
+        // asocia una variable los datos recogido en una a uno y rellenar 
+        $Libros = $setenciaSQL->fetch(PDO::FETCH_LAZY);
+        if (isset($libro["imagen"]) && ($libro["imagen"] != "imagen.jpg")) {
+            if (file_exists("../../img" . $libro["imagen"])) {
+                unlink("../../img" . $libro["imagen"]);
+            }
+        }
+
         $setenciaSQL = $conexion->prepare("DELETE FROM libros WHERE id=:id");
         $setenciaSQL->bindParam(':id', $txtID);
         $setenciaSQL->execute();
+
         break;
     case "Selecionar":
         $setenciaSQL = $conexion->prepare("SELECT * FROM libros WHERE id=:id");
