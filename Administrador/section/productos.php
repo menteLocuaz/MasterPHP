@@ -18,10 +18,14 @@ switch ($accion) {
         $setenciaSQL->execute();
         break;
     case "Modificar":
-        echo 'Presiono el boton modificare';
+        $setenciaSQL = $conexion->prepare("UPDATE libros SET nombre=:nombre WHERE id=:id");
+        $setenciaSQL->bindParam(':id', $txtID);
+        $setenciaSQL->bindParam(':nombre', $txtNombre);
+        $setenciaSQL->execute();
         break;
     case "Cancelar":
-        echo 'Presiono el boton cancelar';
+        // mostra los libros
+        echo 'Selecion de cancelar ';
         break;
     case "Borrar":
         $setenciaSQL = $conexion->prepare("DELETE FROM libros WHERE id=:id");
@@ -29,7 +33,14 @@ switch ($accion) {
         $setenciaSQL->execute();
         break;
     case "Selecionar":
-        echo 'Presiono el boton Selecionar';
+        $setenciaSQL = $conexion->prepare("SELECT * FROM libros WHERE id=:id");
+        $setenciaSQL->bindParam(':id', $txtID);
+        $setenciaSQL->execute();
+        // asocia una variable los datos recogido en una a uno y rellenar 
+        $Libros = $setenciaSQL->fetch(PDO::FETCH_LAZY);
+
+        $txtNombre = $Libros['nombre'];
+        $txtImagen = $Libros['imagen'];
         break;
 }
 // mostra los libros
@@ -50,17 +61,18 @@ $lisatLibros = $setenciaSQL->fetchAll(PDO::FETCH_ASSOC);
             <div class="card-body">
                 <div class="form-group">
                     <label for="txtID">ID : </label>
-                    <input type="txt" class="form-control" name="txtID" id="txtID" placeholder="ID">
+                    <input type="txt" class="form-control" value="<?php echo $txtID; ?>" name="txtID" id="txtID" placeholder="ID">
                     <small id="emailHelp" class="form-text text-muted">Referencia unica del libro</small>
                 </div>
 
                 <div class="form-group">
                     <label for="txtNombre">Nombre : </label>
-                    <input type="txt" class="form-control" name="txtNombre" id="txtNombre" placeholder="Nombre del libro">
+                    <input type="txt" class="form-control" value="<?php echo $txtNombre; ?>" name="txtNombre" id="txtNombre" placeholder="Nombre del libro">
                 </div>
 
                 <div class="form-group">
                     <label for="txtImagen">Imagen : </label>
+                    <?php echo $txtImagen; ?>
                     <input type="file" class="form-control" name="txtImagen" id="txtImagen" placeholder="Imagen de referencia">
                 </div>
                 <br />
